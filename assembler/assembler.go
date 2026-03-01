@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/praveensingh/file-chunker/manifest"
+	"github.com/Praveensingh55602/file-chunker/manifest"
 )
 
 var (
