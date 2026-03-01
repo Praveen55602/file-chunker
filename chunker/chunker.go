@@ -7,19 +7,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-)
 
-type Manifest struct {
-	FileID      string
-	ChunkSize   int64
-	Filename    string
-	TotalSize   int64
-	ChunkHashes []string
-}
+	"github.com/praveen/file-chunker/manifest"
+)
 
 // Split reads a file, chunks it into fixed sizes, saves them to an output directory,
 // and returns the Manifest required to reassemble them.
-func Split(sourcePath string, outputDir string, chunkSize int64) (*Manifest, error) {
+func Split(sourcePath string, outputDir string, chunkSize int64) (*manifest.Manifest, error) {
 	// open the file for reading(does not load the file into ram only gives a pointer to file location from there we can read it)
 	file, err := os.Open(sourcePath)
 	if err != nil {
@@ -33,7 +27,7 @@ func Split(sourcePath string, outputDir string, chunkSize int64) (*Manifest, err
 		return nil, fmt.Errorf("failed to get file info: %w", err)
 	}
 
-	manifest := &Manifest{
+	manifest := &manifest.Manifest{
 		FileID:    info.Name(), // Keeping it simple for the MVP
 		Filename:  info.Name(),
 		TotalSize: info.Size(),
