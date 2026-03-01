@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Praveensingh55602/file-chunker/manifest"
+	"github.com/Praveen55602/file-chunker/manifest"
 )
 
 // Split reads a file, chunks it into fixed sizes, saves them to an output directory,

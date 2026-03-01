@@ -1,3 +1,3 @@
-module github.com/Praveensingh55602/file-chunker
+module github.com/Praveen55602/file-chunker
 
 go 1.24.3
