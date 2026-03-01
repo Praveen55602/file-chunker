@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/praveen/file-chunker/assembler"
-	"github.com/praveen/file-chunker/chunker"
+	"github.com/praveensingh/file-chunker/assembler"
+	"github.com/praveensingh/file-chunker/chunker"
 )
 
 func main() {
