@@ -3,8 +3,10 @@ package chunker
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -12,7 +14,7 @@ import (
 )
 
 // Split reads a file, chunks it into fixed sizes, saves them to an output directory,
-// and returns the Manifest required to reassemble them.
+// and returns the Manifest required to reassemble them while also saving the manifest for later use.
 func Split(sourcePath string, outputDir string, chunkSize int64) (*manifest.Manifest, error) {
 	// open the file for reading(does not load the file into ram only gives a pointer to file location from there we can read it)
 	file, err := os.Open(sourcePath)
@@ -73,5 +75,49 @@ func Split(sourcePath string, outputDir string, chunkSize int64) (*manifest.Mani
 			return nil, fmt.Errorf("failed to write chunk %s: %w", hashedString, err)
 		}
 	}
+
+	if err := SaveManifest(manifest, outputDir); err != nil {
+		return nil, err
+	}
+
 	return manifest, nil
+}
+
+func LoadManifest(manifestPath string) (*manifest.Manifest, error) {
+	//manifest path will have a json file, which we'll deserialize
+	manifestFile, err := os.Open(manifestPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open manifest file: %w", err)
+	}
+	defer manifestFile.Close()
+
+	data, err := io.ReadAll(manifestFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read manifest file: %w", err)
+	}
+
+	//deserialize
+	manifest := &manifest.Manifest{}
+	err = json.Unmarshal(data, manifest)
+	if err != nil {
+		return nil, fmt.Errorf("failed to deserialize manifest: %w", err)
+	}
+
+	return manifest, nil
+}
+
+func SaveManifest(manifest *manifest.Manifest, manifestDirectory string) error {
+	log.Printf("Saving manifest to %s\n", manifestDirectory)
+	//serialize
+	data, err := json.Marshal(manifest)
+	if err != nil {
+		return fmt.Errorf("failed to serialize manifest: %w", err)
+	}
+
+	manifestPath := filepath.Join(manifestDirectory, manifest.Filename+"-manifest.json")
+	if err := os.WriteFile(manifestPath, data, 0755); err != nil {
+		return fmt.Errorf("failed to save manifest: %w", err)
+	}
+	log.Printf("manifest saved to %s\n", manifestDirectory)
+	return nil
 }
