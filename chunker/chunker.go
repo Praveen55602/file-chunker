@@ -3,14 +3,13 @@ package chunker
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/Praveen55602/file-chunker/manifest"
+	man "github.com/Praveen55602/file-chunker/manifest"
 )
 
 // Split reads a file, chunks it into fixed sizes, saves them to an output directory,
@@ -30,10 +29,11 @@ func Split(sourcePath string, outputDir string, chunkSize int64) (*manifest.Mani
 	}
 
 	manifest := &manifest.Manifest{
-		FileID:    info.Name(), // Keeping it simple for the MVP
-		Filename:  info.Name(),
-		TotalSize: info.Size(),
-		ChunkSize: chunkSize,
+		FileID:        info.Name(), // Keeping it simple for the MVP
+		Filename:      info.Name(),
+		TotalSize:     info.Size(),
+		ChunkSize:     chunkSize,
+		FileExtention: filepath.Ext(info.Name()),
 	}
 
 	// Ensure the output directory exists
@@ -76,48 +76,9 @@ func Split(sourcePath string, outputDir string, chunkSize int64) (*manifest.Mani
 		}
 	}
 
-	if err := SaveManifest(manifest, outputDir); err != nil {
+	if err := man.SaveManifest(manifest, outputDir); err != nil {
 		return nil, err
 	}
 
 	return manifest, nil
-}
-
-func LoadManifest(manifestPath string) (*manifest.Manifest, error) {
-	//manifest path will have a json file, which we'll deserialize
-	manifestFile, err := os.Open(manifestPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open manifest file: %w", err)
-	}
-	defer manifestFile.Close()
-
-	data, err := io.ReadAll(manifestFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read manifest file: %w", err)
-	}
-
-	//deserialize
-	manifest := &manifest.Manifest{}
-	err = json.Unmarshal(data, manifest)
-	if err != nil {
-		return nil, fmt.Errorf("failed to deserialize manifest: %w", err)
-	}
-
-	return manifest, nil
-}
-
-func SaveManifest(manifest *manifest.Manifest, manifestDirectory string) error {
-	log.Printf("Saving manifest to %s\n", manifestDirectory)
-	//serialize
-	data, err := json.Marshal(manifest)
-	if err != nil {
-		return fmt.Errorf("failed to serialize manifest: %w", err)
-	}
-
-	manifestPath := filepath.Join(manifestDirectory, manifest.Filename+"-manifest.json")
-	if err := os.WriteFile(manifestPath, data, 0755); err != nil {
-		return fmt.Errorf("failed to save manifest: %w", err)
-	}
-	log.Printf("manifest saved to %s\n", manifestDirectory)
-	return nil
 }

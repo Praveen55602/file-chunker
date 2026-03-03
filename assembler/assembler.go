@@ -24,6 +24,7 @@ type Assembler struct {
 // NewAssembler initializes the target file and pre-allocates the disk space
 func NewAssembler(m *manifest.Manifest, targetPath string) (*Assembler, error) {
 	// Open the file for read/write, create it if it doesn't exist
+	targetPath += m.FileExtention
 	file, err := os.OpenFile(targetPath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open target file: %w", err)
