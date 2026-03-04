@@ -49,7 +49,8 @@ func SaveManifest(manifest *Manifest, manifestDirectory string) error {
 		return fmt.Errorf("failed to serialize manifest: %w", err)
 	}
 
-	manifestPath := filepath.Join(manifestDirectory, manifest.Filename+"-manifest.json")
+	fileNameWithoutExtention := manifest.Filename[:len(manifest.Filename)-len(manifest.FileExtention)]
+	manifestPath := filepath.Join(manifestDirectory, fileNameWithoutExtention+"-manifest.json")
 	if err := os.WriteFile(manifestPath, data, 0755); err != nil {
 		return fmt.Errorf("failed to save manifest: %w", err)
 	}
